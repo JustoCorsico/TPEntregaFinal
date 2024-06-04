@@ -14,3 +14,8 @@ def get_plot(t, f):
     plt.xlabel('Tiempo')
     plt.ylabel('Amplitud')
     plt.show()
+
+def cargar_wav(file):
+    
+    data, fs = sf.read(file)
+    return(data, fs)
