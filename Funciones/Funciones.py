@@ -6,6 +6,9 @@ from IPython.display import clear_output, display
 import soundfile as sf
 from scipy.io import wavfile
 import os
+import sounddevice as sd
+from scipy import signal
+
 def plot_array(np_array,sample_rate,titulo,name_x,name_y):
 
     """
@@ -26,7 +29,7 @@ def plot_array(np_array,sample_rate,titulo,name_x,name_y):
     Displays a plot with the signal "signal" on the Y-axis and time on the X-axis.
     """
     duracion=(len(np_array)//sample_rate)
-    t=np.linspace(0,duracion,duracion*sample_rate)
+    t=np.linspace(0,duracion,len(np_array))
     plt.plot(t,np_array)
     plt.xlim((0,duracion))
     plt.xlabel(name_x)
@@ -51,10 +54,15 @@ def cargar_wav():
     fileselect = Button(description="Seleccione el archivo")
     fileselect.on_click(select_files)
     select_files()
-    
-
+    return files
 
 def plot_wav(wav_path):
+    """
+    Plots the waveform of a WAV audio file.
+
+    Args:
+      wav_path (str): Path to the WAV audio file.
+    """
     sample_rate, data = wavfile.read(wav_path)
     duracion=(len(data)//sample_rate)
     t=np.linspace(0,duracion,duracion*sample_rate)
@@ -65,6 +73,34 @@ def plot_wav(wav_path):
     plt.title(os.path.basename(wav_path))
     plt.show()
 
-def leer_wav(wav):
-    data, fs = sf.read(wav)
-    return(data, fs)
+def get_wav(myrecording):
+    """
+    Generates a WAV file from an array:
+
+        Parameters:
+        myrecording: 
+
+    """
+    frec_sampleo=int(input("Ingrese frecuencia de sampleo: "))
+    audio2 = (myrecording* np.iinfo(np.int16).max).astype(np.int16)
+    wavfile.write("grabacion.wav",frec_sampleo,audio2)
+    
+def get_data(archivo_wav):
+    """
+    Vectorize a WAV file
+    Parameters:
+        archivo_wav(WAV): WAV file name
+    Return: 
+        data(np_array):Array with amplitude values  
+        fs(int): WAV file samplerate
+    """  
+    data,fs=sf.read(archivo_wav)
+    return data,fs
+
+def suavizar_hilbert(signal_data):
+    """
+    
+    """
+    suave_signal = signal.hilbert(signal_data)
+    envelope_suave = np.abs(suave_signal)
+    return (suave_signal,envelope_suave)
