@@ -26,7 +26,7 @@ def plot_array(np_array,sample_rate,titulo,name_x,name_y):
     Displays a plot with the signal "signal" on the Y-axis and time on the X-axis.
     """
     duracion=(len(np_array)//sample_rate)
-    t=np.linspace(0,duracion,duracion*sample_rate)
+    t=np.linspace(0,duracion,len(np_array))
     plt.plot(t,np_array)
     plt.xlim((0,duracion))
     plt.xlabel(name_x)
@@ -51,6 +51,7 @@ def cargar_wav():
     fileselect = Button(description="Seleccione el archivo")
     fileselect.on_click(select_files)
     select_files()
+    return files
     
 
 
