@@ -64,3 +64,7 @@ def plot_wav(wav_path):
     plt.ylabel("Tiempo(S)")
     plt.title(os.path.basename(wav_path))
     plt.show()
+
+def leer_wav(wav):
+    data, fs = sf.read(wav)
+    return(data, fs)
