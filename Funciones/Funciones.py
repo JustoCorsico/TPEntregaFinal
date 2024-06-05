@@ -6,6 +6,7 @@ from IPython.display import clear_output, display
 import soundfile as sf
 from scipy.io import wavfile
 import os
+import sounddevice as sd
 def plot_array(np_array,sample_rate,titulo,name_x,name_y):
 
     """
@@ -51,10 +52,14 @@ def cargar_wav():
     fileselect = Button(description="Seleccione el archivo")
     fileselect.on_click(select_files)
     select_files()
-    
-
 
 def plot_wav(wav_path):
+    """
+    Plots the waveform of a WAV audio file.
+
+    Args:
+      wav_path (str): Path to the WAV audio file.
+    """
     sample_rate, data = wavfile.read(wav_path)
     duracion=(len(data)//sample_rate)
     t=np.linspace(0,duracion,duracion*sample_rate)
@@ -64,3 +69,27 @@ def plot_wav(wav_path):
     plt.ylabel("Tiempo(S)")
     plt.title(os.path.basename(wav_path))
     plt.show()
+
+def get_wav(myrecording):
+    """
+    Generates a WAV file from an array:
+
+        Parameters:
+        myrecording: 
+
+    """
+    frec_sampleo=int(input("Ingrese frecuencia de sampleo: "))
+    audio2 = (myrecording* np.iinfo(np.int16).max).astype(np.int16)
+    wavfile.write("grabacion.wav",frec_sampleo,audio2)
+    
+def get_data(archivo_wav):
+    """
+    Vectorize a WAV file
+    Parameters:
+        archivo_wav(WAV): WAV file name
+    Return: 
+        data(np_array):Array with amplitude values  
+        fs(int): WAV file samplerate
+    """  
+    data,fs=sf.read(archivo_wav)
+    return data,fs
