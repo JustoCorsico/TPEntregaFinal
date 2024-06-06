@@ -93,8 +93,13 @@ def get_data(archivo_wav):
     """  
     data,fs=sf.read(archivo_wav)
     return data,fs
-def conv_logaritmica(array,sample_rate):
-    duracion=(len(array)//sample_rate)
-    t=np.linspace(0,duracion,duracion*sample_rate)
-    log_array=20*np.log((array/np.max(array))*t)
+def conv_logaritmica(array):
+    log_array=20*np.log(array/np.max(array))
     return log_array
+def suavizar_hilbert(signal_data):
+    """
+    
+    """
+    suave_signal = signal.hilbert(signal_data)
+    envelope_suave = np.abs(suave_signal)
+    return (suave_signal,envelope_suave)
