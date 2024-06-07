@@ -9,6 +9,7 @@ import os
 import sounddevice as sd
 from scipy import signal
 import pandas as pd
+import math
 def plot_array(np_array,sample_rate,titulo,name_x,name_y):
 
     """
@@ -28,7 +29,7 @@ def plot_array(np_array,sample_rate,titulo,name_x,name_y):
 
     Displays a plot with the signal "signal" on the Y-axis and time on the X-axis.
     """
-    duracion=(len(np_array)//sample_rate)
+    duracion=(len(np_array)/sample_rate)
     t=np.linspace(0,duracion,len(np_array))
     plt.plot(t,np_array)
     plt.xlim((0,duracion))
@@ -54,6 +55,10 @@ def cargar_wav():
     fileselect = Button(description="Seleccione el archivo")
     fileselect.on_click(select_files)
     select_files()
+def normalizacion(signal):
+    norm_signal = (signal* np.iinfo(np.int16).max).astype(np.int16)
+    return norm_signal
+
 
 def plot_wav(wav_path):
     """
@@ -63,8 +68,8 @@ def plot_wav(wav_path):
       wav_path (str): Path to the WAV audio file.
     """
     sample_rate, data = wavfile.read(wav_path)
-    duracion=(len(data)//sample_rate)
-    t=np.linspace(0,duracion,duracion*sample_rate)
+    duracion=(len(data)/sample_rate)
+    t=np.linspace(0,duracion,len(data))
     plt.plot(t,data)
     plt.xlim((0,duracion))
     plt.xlabel("Amplitud")
@@ -82,7 +87,8 @@ def get_wav(myrecording):
     """
     frec_sampleo=int(input("Ingrese frecuencia de sampleo: "))
     audio2 = (myrecording* np.iinfo(np.int16).max).astype(np.int16)
-    wavfile.write("grabacion.wav",frec_sampleo,audio2)
+    name=(input("Ingrese Nombre del archivo: "))+".wav"
+    wavfile.write(name,frec_sampleo,audio2)
     
 def get_data(archivo_wav):
     """
@@ -95,17 +101,26 @@ def get_data(archivo_wav):
     """  
     data,fs=sf.read(archivo_wav)
     return data,fs
-def conv_logaritmica(array):
-    log_array=20*np.log(array/np.max(array))
+def conv_logaritmica(array,sample_rate):
+    positive_signal=array+np.abs(np.min(array))
+    max_value=np.max(positive_signal)
+    log_list=[]
+    for elem in positive_signal:
+        if elem==0:
+            log_list.append(0)
+        else:
+            log_list.append(20*np.log10(elem/max_value))
+    log_array=np.array(log_list)
     return log_array
+    
 def funcion_multiple(signal_data):
     """
     """
     analytic_signal = signal.hilbert(signal_data)
-    envelope = np.abs(analytic_signal)
+    hilbert = np.abs(analytic_signal)
 
     windows=int(input("Ingrese cantidad muestras a utilizar para el suavizado:"))
-    df = pd.DataFrame(envelope)
+    df = pd.DataFrame(signal_data)
     df["Promedio movil"]=df.rolling(windows).mean()
-    env_suavizada=(df["Promedio movil"]).to_numpy()
-    return (analytic_signal,envelope,env_suavizada)
+    prom_movil=(df["Promedio movil"]).to_numpy()
+    return (hilbert,prom_movil)
