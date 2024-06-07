@@ -7,6 +7,8 @@ import soundfile as sf
 from scipy.io import wavfile
 import os
 import sounddevice as sd
+from scipy import signal
+import pandas as pd
 def plot_array(np_array,sample_rate,titulo,name_x,name_y):
 
     """
@@ -27,7 +29,7 @@ def plot_array(np_array,sample_rate,titulo,name_x,name_y):
     Displays a plot with the signal "signal" on the Y-axis and time on the X-axis.
     """
     duracion=(len(np_array)//sample_rate)
-    t=np.linspace(0,duracion,duracion*sample_rate)
+    t=np.linspace(0,duracion,len(np_array))
     plt.plot(t,np_array)
     plt.xlim((0,duracion))
     plt.xlabel(name_x)
@@ -93,3 +95,17 @@ def get_data(archivo_wav):
     """  
     data,fs=sf.read(archivo_wav)
     return data,fs
+def conv_logaritmica(array):
+    log_array=20*np.log(array/np.max(array))
+    return log_array
+def funcion_multiple(signal_data):
+    """
+    """
+    analytic_signal = signal.hilbert(signal_data)
+    envelope = np.abs(analytic_signal)
+
+    windows=int(input("Ingrese cantidad muestras a utilizar para el suavizado:"))
+    df = pd.DataFrame(envelope)
+    df["Promedio movil"]=df.rolling(windows).mean()
+    env_suavizada=(df["Promedio movil"]).to_numpy()
+    return (analytic_signal,envelope,env_suavizada)
