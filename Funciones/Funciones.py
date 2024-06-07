@@ -55,12 +55,7 @@ def cargar_wav():
     fileselect.on_click(select_files)
     select_files()
     return files
-<<<<<<< HEAD
     
-
-=======
->>>>>>> 344a69d263e9415316b7563b40cf460c54e65cb0
-
 def plot_wav(wav_path):
     """
     Plots the waveform of a WAV audio file.
@@ -92,13 +87,14 @@ def get_wav(myrecording):
     
 def get_data(archivo_wav):
     """
-    Vectorize a WAV file
-    Parameters:
-        archivo_wav(WAV): WAV file name
-    Return: 
-        data(np_array):Array with amplitude values  
-        fs(int): WAV file samplerate
-    """  
+  Vectorize multiple WAV files.
+
+  Parameters:
+      archivo_wav (list[str]): A list of paths to WAV audio files.
+
+  Returns:
+      list[tuple]: A list of tuples, where each tuple contains the data and sampling rate for a corresponding WAV file.
+    """
     data,fs=sf.read(archivo_wav)
     return data,fs
 
