@@ -10,6 +10,7 @@ import sounddevice as sd
 from scipy import signal
 import pandas as pd
 import math
+import pyrato
 def plot_array(np_array,sample_rate,titulo,name_x,name_y):
 
     """
@@ -102,16 +103,12 @@ def get_data(archivo_wav):
     data,fs=sf.read(archivo_wav)
     return data,fs
 def conv_logaritmica(array,sample_rate):
-    positive_signal=array+np.abs(np.min(array))
-    max_value=np.max(positive_signal)
-    log_list=[]
-    for elem in positive_signal:
-        if elem==0:
-            log_list.append(0)
-        else:
-            log_list.append(20*np.log10(elem/max_value))
-    log_array=np.array(log_list)
-    return log_array
+    Audio=array/max(abs(array))
+    epsilon = 1e-12
+    Audio[Audio==0]=epsilon
+    Audio[Audio<0]=np.abs(Audio[Audio<0])
+    Audio_log=20*np.log10(Audio)
+    return Audio_log
     
 def funcion_multiple(signal_data):
     """
@@ -120,7 +117,25 @@ def funcion_multiple(signal_data):
     hilbert = np.abs(analytic_signal)
 
     windows=int(input("Ingrese cantidad muestras a utilizar para el suavizado:"))
-    df = pd.DataFrame(signal_data)
+    df = pd.DataFrame(hilbert)
     df["Promedio movil"]=df.rolling(windows).mean()
     prom_movil=(df["Promedio movil"]).to_numpy()
-    return (hilbert,prom_movil)
+
+    schroeder=pyrato.schroeder_integration(prom_movil,is_energy=False)
+
+    return (hilbert,prom_movil,schroeder)   
+
+def cuadrados_minimos(schroeder_function):
+    t=np.linspace(0,len(schroeder_function)/44100,len(schroeder_function))
+    x_i=np.sum(t)
+    y_i=np.sum(schroeder_function)
+    x_mean=np.mean(t)
+    y_mean=np.mean(schroeder_function)
+    n=len(schroeder_function)
+    a1=(n*(np.sum(schroeder_function*t))-x_i*y_i)/(n*np.sum(t**2)-x_i**2)
+    a2=(y_i*np.sum(t**2)-x_i*np.sum(t*schroeder_function))/(n*np.sum(t**2)-x_i**2)
+    v2=[a2]*len(schroeder_function)
+    y=a1*t+v2
+    t60=(-60-a2)/a1
+    print(t60)
+    return y    
