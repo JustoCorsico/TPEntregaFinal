@@ -27,9 +27,9 @@ def filtrar_frec(centerFrequency_Hz,G,i):
 
     #Extraemos los coeficientes del filtro 
     sos = signal.iirfilter(4, [lowerCutoffFrequency_Hz,upperCutoffFrequency_Hz],rs=60, btype='band', analog=False,ftype='butter', fs=frecuencia_muestreo, output='sos') 
-    audiodata,fs=sf.read("Mono.wav")
+    audiodata,fs=sf.read("ir_posic2-pb_-_sfdc.wav")
     filt = signal.sosfilt(sos, audiodata)
-    nombre_archivo=f"impulso filtrado tercio{i}.wav"
+    nombre_archivo=f"Posicion 2ba.wav"
     sf.write(nombre_archivo,filt,fs)
 frec_centrales_octava=(31.25, 62.5, 125, 250, 500, 1000, 2000, 4000, 8000,16000)
 frec_centrales_tercio=(25,31.5,40,50,63,80,100,125,160,200,250,315,400,500,630,800,1000,1250,1600,2000,2500,3150,4000,5000,6300,8000,10000,12500,16000,20000)
